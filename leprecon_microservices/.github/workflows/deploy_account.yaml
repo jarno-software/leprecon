@@ -1,0 +1,26 @@
+name: Deploy Account
+run-name: "${{ github.actor }} ran ${{ github.workflow }} on ${{ github.ref_name }}"
+on:
+  release:
+    types: [published]
+jobs:
+  deploy:
+    if: ${{ startsWith(github.event.release.tag_name, 'account') }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+      - name: Azure Login
+        uses: azure/login@6b2456866fc08b011acb422a92a4aa20e2c4de32 # v2.1.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure CLI script
+        run: |
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name leprecon
+      - name: Azure kubectl setup
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v4.0.0
+        with:
+          version: "latest"
+      - name: Restart account service
+        run: kubectl rollout restart deployment account -n leprecon

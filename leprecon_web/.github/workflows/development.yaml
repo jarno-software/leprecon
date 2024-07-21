@@ -1,0 +1,109 @@
+name: Development
+run-name: "${{ github.actor }} ran ${{ github.workflow }} on ${{ github.ref_name }}"
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+  build_and_push:
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
+    needs: lint
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - name: Build docker image
+        run: docker build -t 'ghcr.io/${{ github.repository }}' .
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        with:
+          registry: ghcr.io
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Push to GitHub Container Registry
+        run: docker push 'ghcr.io/${{ github.repository }}:latest'
+  static_code_analysis:
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
+    needs: build_and_push
+    name: SonarCloud
+    runs-on: ubuntu-22.04
+    services:
+      web:
+        image: ghcr.io/leprec0n/web:latest
+        volumes:
+          - ./instrumented:/usr/local/openresty/nginx/html
+        ports:
+          - 80:80
+          - 443:443
+        env:
+          HOST: 0.0.0.0
+          AUTH_HOST: ${{ secrets.AUTH_HOST }}
+          CLIENT_ID: ${{ secrets.CIENT_ID }}
+          GATEWAY_HOST: http://account:8080
+          AUDIENCE: http://127.0.0.1:80
+          CACHE_LOCATION: localstorage
+        credentials:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        options: --restart always
+      account:
+        image: ghcr.io/leprec0n/microservices/account:latest
+        ports:
+          - 8080:8080
+        env:
+          ACCOUNT_HOST: 0.0.0.0:8080
+          LOG_LEVEL: debug
+          ALLOW_ORIGIN: "*"
+          DB_CONN: postgresql://postgres:postgres@account-db
+          ACCOUNT_CONN: postgresql://postgres:postgres@account-db/account
+          AUTH_HOST: ${{ secrets.AUTH_HOST }}
+          CLIENT_ID_ACCOUNT: ${{ secrets.CLIENT_ID_ACCOUNT }}
+          CLIENT_SECRET_ACCOUNT: ${{ secrets.CLIENT_SECRET_ACCOUNT }}
+          CLIENT_AUD_ACCOUNT: ${{ secrets.CLIENT_AUD_ACCOUNT }}
+          VALKEY_CONN: redis://session-db:6379
+          SUB_NOT_VERIFIED: ${{ secrets.SUB_NOT_VERIFIED }}
+        credentials:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        options: --restart always
+      account-db:
+        image: postgres:16.2-alpine3.19
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+      session-db:
+        image: valkey/valkey:7.2-alpine3.19
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - name: Install packages
+        run: npm install
+      - name: Instrument js files
+        run: npx nyc instrument --compact=false www instrumented
+      - name: Run health check
+        run: ./health_check.sh
+      - name: End to end tests
+        run: npx cypress run --env AUTH_HOST=${{ secrets.CYPRESS_AUTH_HOST }}
+      - name: Show summaries
+        run: npx nyc report --reporter=text-summary
+      - name: SonarCloud scan
+        uses: SonarSource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9 # v2.1.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          SONAR_TOKEN: "${{ secrets.SONAR_TOKEN }}"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        if: always()
+        with:
+          name: artifacts
+          path: cypress/screenshots
+          if-no-files-found: warn
+          retention-days: 1

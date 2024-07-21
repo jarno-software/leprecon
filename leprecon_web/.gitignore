@@ -1,0 +1,9 @@
+node_modules
+.env
+www/js/auth/client.js
+.vscode
+cypress/screenshots
+.nyc_output
+coverage
+instrumented/3p
+instrumented/js

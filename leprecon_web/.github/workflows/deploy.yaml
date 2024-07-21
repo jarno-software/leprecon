@@ -1,0 +1,18 @@
+name: Deploy
+run-name: "${{ github.actor }} ran ${{ github.workflow }} on ${{ github.ref_name }}"
+on:
+  release:
+    types: [published]
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - name: Azure Login
+        uses: azure/login@6b2456866fc08b011acb422a92a4aa20e2c4de32 # v2.1.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure CLI script
+        run: |
+          az container restart -g ${{ secrets.AZURE_RESOURCE_GROUP }} -n leprecon-web

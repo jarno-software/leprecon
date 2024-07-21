@@ -1,0 +1,21 @@
+<div class="flex flex-col">
+  {% if k.contains("_") %}
+    <label for="{{ k }}">{{ k.replace("_", " ")|capitalize }}</label>
+    <input id="{{ k.replace("_", "-") }}" name="{{ k }}" 
+      class="border-2 border-black" type="text" 
+      {% if v.is_some() %} 
+        value="{{ v.as_ref().unwrap() }}" 
+      {% endif %} /> 
+  {% else %}
+    <label for="{{ k }}">{{ k|capitalize }}</label>
+    <input
+      id="{{ k }}"
+      name="{{ k }}"
+      class="border-2 border-black"
+      type="text"
+      {% if v.is_some() %}
+        value="{{ v.as_ref().unwrap() }}"
+      {% endif %}
+    />
+  {% endif %}
+</div>

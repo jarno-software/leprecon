@@ -1,0 +1,12 @@
+target
+.env
+.vscode
+lcov.info
+node_modules
+github_registry.conf
+istio-*
+kubernetes/secret/account_secret.yaml
+kubernetes/secret/database_secret.yaml
+kubernetes/secret/game_catalog_secret.yaml
+kubernetes/secret/game_catalog_database_secret.yaml
+.dockerconfigjson

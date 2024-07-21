@@ -1,0 +1,66 @@
+name: Account
+run-name: "${{ github.actor }} ran ${{ github.workflow }} on ${{ github.ref_name }}"
+on:
+  push:
+    branches:
+      - '\d+-*'
+      - development
+    paths:
+      - "src/account/**"
+  pull_request:
+    branches:
+      - main
+      - development
+    paths:
+      - "src/account/**"
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgres:16.2-alpine3.19
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+      valkey:
+        image: valkey/valkey:7.2-alpine3.19
+        ports:
+          - 6379:6379
+    if: github.base_ref != 'main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - name: Run account tests
+        run: cargo test --bin account
+        env:
+          ACCOUNT_HOST: http://127.0.0.1:8080
+          LOG_LEVEL: debug
+          ALLOW_ORIGIN: http://127.0.0.1:80
+          ACCOUNT_CONN: postgresql://postgres:postgres@127.0.0.1/account
+          POSTGRES_PASSWORD: postgres
+          AUTH_HOST: ${{ secrets.AUTH_HOST }}
+          CLIENT_ID_ACCOUNT: ${{ secrets.CLIENT_ID_ACCOUNT }}
+          CLIENT_SECRET_ACCOUNT: ${{ secrets.CLIENT_SECRET_ACCOUNT }}
+          VALKEY_CONN: redis://127.0.0.1:6379
+          SUB_NOT_VERIFIED: ${{ secrets.SUB_NOT_VERIFIED }}
+          DB_CONN: postgresql://postgres:postgres@127.0.0.1
+  build_and_push:
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    if: github.base_ref == 'main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - name: Build docker image
+        run: docker build -t 'ghcr.io/${{ github.repository }}/account' -f src/account/Dockerfile .
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        with:
+          registry: ghcr.io
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Push to GitHub Container Registry
+        run: docker push 'ghcr.io/${{ github.repository }}/account:latest'

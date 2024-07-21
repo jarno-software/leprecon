@@ -1,0 +1,47 @@
+name: leprecon
+services:
+  web:
+    image: web:latest
+    container_name: web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - ./instrumented:/usr/local/openresty/nginx/html
+    networks:
+      - leprecon-network
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    expose:
+      - 80
+      - 443
+  account:
+    image: "ghcr.io/leprec0n/microservices/account:latest"
+    container_name: account
+    networks:
+      - leprecon-network
+    restart: always
+    env_file: .env
+    ports:
+      - "8080:8080"
+  account-db:
+    image: postgres:alpine3.19
+    container_name: account-db
+    networks:
+      - leprecon-network
+    env_file: .env
+    ports:
+      - "5432:5432"
+  session-db:
+    image: valkey/valkey:7.2.5-alpine3.19
+    container_name: session-db
+    networks:
+      - leprecon-network
+    ports:
+      - "6379:6379"
+networks:
+  leprecon-network:
+    driver: bridge

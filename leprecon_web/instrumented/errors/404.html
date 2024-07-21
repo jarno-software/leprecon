@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Leprecon</title>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, height=device-height, maximum-scale=5.0, minimum-scale=1.0"
+    />
+    <meta name="description" content="Gambling website." />
+    <meta name="theme-color" content="#0F0" />
+    <script src="../3p/auth0.min.js"></script>
+    <script src="../js/auth/client.js"></script>
+    <script type="module" src="../js/auth/auth0.mjs"></script>
+    <script src="../3p/htmx.min.js"></script>
+    <link href="css/output.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="icon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="icon/favicon-16x16.png"
+    />
+  </head>
+  <body class="grid grid-cols-9 grid-flow-col">
+    <!-- Side bar (left) -->
+    <div class="col-span-1 bg-purple-500 p-3 space-y-2">
+      <div class="flex space-x-4 items-center">
+        <img
+          alt="logo.png"
+          style="width: 62px; height: 75px"
+          src="images/logo/logo.png"
+        />
+        <span class="invisible xl:visible font-bold">Leprecon</span>
+      </div>
+      <div class="space-y-6">
+        <div class="flex flex-col space-y-2 py-3">
+          <span>Discover</span>
+          <span>Favourites</span>
+          <span>Recently played</span>
+        </div>
+        <div>
+          <h1 class="font-bold">Categories</h1>
+          <div class="flex flex-col space-y-2 py-3">
+            <span>Slots</span>
+            <span>Roulette</span>
+            <span>Cards</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-8 bg-orange-300">
+      <!-- Nav bar (top) -->
+      <div
+        class="bg-red-500 p-3 h-20 flex justify-end space-x-20 items-center px-20"
+      >
+        <div>
+          <span>Search</span>
+        </div>
+        <div class="space-x-2 w-32 justify-end flex">
+          <span id="username" class="hidden"></span>
+          <button id="login" class="visible">login</button>
+          <button id="logout" class="hidden invisible">logout</button>
+        </div>
+      </div>
+      <!-- Body -->
+      <div class="bg-blue-500 p-3 overflow-y-scroll h-[calc(100vh-5rem)]">
+        <h1>404 Page not found</h1>
+        <footer class="bg-yellow-300">Test</footer>
+      </div>
+    </div>
+  </body>
+  <script src="../js/auth/utils.js"></script>
+  <script type="module" src="../js/htmx_handler.mjs"></script>
+  <script type="module" src="../js/auth/query_handler.mjs"></script>
+  <footer></footer>
+</html>

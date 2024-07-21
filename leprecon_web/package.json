@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "tailwindwatch": "npx tailwindcss -i www/css/main.css -o www/css/output.css --watch"
+  },
+  "devDependencies": {
+    "@cypress/code-coverage": "^3.12.39",
+    "cypress": "^13.9.0",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.1"
+  }
+}

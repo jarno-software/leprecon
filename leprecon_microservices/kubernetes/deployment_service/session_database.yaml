@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: session-database-service
+  namespace: leprecon
+spec:
+  selector:
+    app: session-database
+  ports:
+    - port: 6379
+      targetPort: session-db-port
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-database
+  namespace: leprecon
+spec:
+  selector:
+    matchLabels:
+      app: session-database
+  template:
+    metadata:
+      labels:
+        app: session-database
+    spec:
+      containers:
+        - name: session-database
+          image: valkey/valkey:7.2.5-alpine3.19
+          ports:
+            - containerPort: 6379
+              name: session-db-port

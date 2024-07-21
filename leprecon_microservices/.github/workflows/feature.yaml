@@ -1,0 +1,9 @@
+name: Feature
+run-name: "${{ github.actor }} ran ${{ github.workflow }} on ${{ github.ref_name }}"
+on:
+  push:
+    branches:
+      - '\d+-*'
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml

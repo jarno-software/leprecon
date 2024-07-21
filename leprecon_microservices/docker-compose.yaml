@@ -1,0 +1,10 @@
+name: leprecon-services
+services:
+  account:
+    image: "ghcr.io/leprec0n/microservices/account:latest"
+    build:
+      context: .
+      dockerfile: src/account/Dockerfile
+    container_name: account
+    network_mode: host
+    env_file: .env

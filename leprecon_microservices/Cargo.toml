@@ -1,0 +1,40 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package]
+name = "leprecon"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "account"
+path = "src/account/main.rs"
+
+[[bin]]
+name = "game_catalog"
+path = "src/game_catalog/main.rs"
+
+[[bin]]
+name = "payment"
+path = "src/payment/main.rs"
+
+[dependencies]
+tokio = { version = "1.36.0", features = ["full"] } # !TODO change full to only the used features.
+axum = "0.7.5"
+tower = { version = "0.4.13", features = ["full"] } # !TODO change full to only the used features.
+tower-http = { version = "0.5.2", features = ["full"] } # !TODO change full to only the used features.
+askama = "0.12.1"
+serde = { version = "1.0.197", features = ["derive"] } # !TODO change derive to only the used features.
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+reqwest = { version = "0.12.3" , features = ["blocking", "json"] }
+serde_json = "1.0"
+tokio-postgres = { version = "0.7.10", features = ["with-chrono-0_4"] }
+chrono = { version = "0.4.37", features = ["serde"] }
+refinery = { version = "0.8.14", features = ["tokio-postgres"] }
+barrel = { version = "0.7.0", features = ["pg"] }
+redis = { version = "0.25.3", features = ["tokio-comp"] }
+indexmap = "2.2.6"
+bb8-postgres = "0.8.1"
+bb8-redis = "0.15.0"
+mongodb = "2.8.2"
+futures = "0.3.30"
+rabbitmq-stream-client = "0.4.2"

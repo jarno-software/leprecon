@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Leprecon</title>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, height=device-height, maximum-scale=5.0, minimum-scale=1.0"
+    />
+    <meta name="description" content="Gambling website." />
+    <meta name="theme-color" content="#0F0" />
+    <script src="/3p/auth0.min.js"></script>
+    <script src="/js/auth/client.js"></script>
+    <script type="module" src="/js/auth/auth0.mjs"></script>
+    <script src="/3p/htmx.min.js"></script>
+    <script src="/js/auth/utils.js"></script>
+    <script type="module" src="/js/htmx_handler.mjs"></script>
+    <script type="module" src="/js/auth/query_handler.mjs"></script>
+    <link href="/css/output.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/icon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/icon/favicon-16x16.png"
+    />
+  </head>
+  <body class="grid grid-cols-9 grid-flow-col">
+    <!-- Side bar (left) -->
+    <div class="col-span-1 bg-purple-500 p-3 space-y-2">
+      <div class="flex space-x-4 items-center">
+        <img
+          alt="logo.png"
+          style="width: 62px; height: 75px"
+          src="/images/logo/logo.png"
+        />
+        <span
+          id="page-title"
+          hx-get="/components/home.html"
+          hx-push-url="/"
+          hx-target="#page-body"
+          class="invisible xl:visible font-bold cursor-pointer"
+          >Leprecon</span
+        >
+      </div>
+      <div class="space-y-6">
+        <div class="flex flex-col space-y-2 py-3">
+          <span>Discover</span>
+          <span>Favourites</span>
+          <span>Recently played</span>
+        </div>
+        <div>
+          <h1 class="font-bold">Categories</h1>
+          <div class="flex flex-col space-y-2 py-3">
+            <span>Slots</span>
+            <span>Roulette</span>
+            <span>Cards</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-8 bg-orange-300">
+      <!-- Nav bar (top) -->
+      <div
+        class="bg-red-500 p-3 h-20 flex justify-end space-x-24 items-center px-20"
+      >
+        <div>
+          <span>Search</span>
+        </div>
+        <div class="space-x-2 w-36 justify-end flex">
+          <div
+            id="balance"
+            class="hidden invisible"
+            hx-get="/user/balance"
+            hx-swap="outerHTML"
+            hx-trigger="intersect once"
+          ></div>
+          <span
+            id="username"
+            hx-get="/user/information"
+            hx-push-url="/user/information"
+            hx-target="#page-body"
+            class="hidden"
+          ></span>
+          <button id="login" onclick="login()" class="visible">login</button>
+          <button id="logout" onclick="logout()" class="hidden invisible">
+            logout
+          </button>
+        </div>
+      </div>
+      <!-- Body -->
+      <div class="bg-blue-500 p-3 overflow-y-scroll h-[calc(100vh-5rem)]">
+        <!-- Snackbars -->
+        <div id="snackbar" class="space-y-0.5">
+          <div
+            id="email-verification-snackbar"
+            class="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded relative space-x-2 invisible hidden"
+            role="alert"
+          >
+            <span id="verification-message" class="block sm:inline"
+              >Check email to verify account.</span
+            >
+            <button
+              id="send-verification-mail"
+              hx-post="/email/verification"
+              hx-target="#snackbar"
+              hx-swap="beforeend"
+            >
+              [Resend mail]
+            </button>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <button>
+                <svg
+                  class="fill-current h-6 w-6 text-red-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <title>Close</title>
+                  <path
+                    d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"
+                  />
+                </svg>
+              </button>
+            </span>
+          </div>
+          <div
+            id="error-snackbar"
+            class="hidden invisible bg-red-100 border border-red-400 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <div class="flex space-x-2 text-red-700">
+              <strong class="font-bold">Error: </strong>
+              <span id="error-message" class="block sm:inline"
+                >Service down</span
+              >
+            </div>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <button>
+                <svg
+                  class="fill-current h-6 w-6 text-red-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <title>Close</title>
+                  <path
+                    d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"
+                  />
+                </svg>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div id="page-body">
+          <div
+            id="home"
+            hx-get="/components/home.html"
+            hx-trigger="load"
+            hx-swap="outerHTML"
+          ></div>
+        </div>
+        <footer class="bg-yellow-300 bottom-0">Test</footer>
+      </div>
+    </div>
+  </body>
+</html>

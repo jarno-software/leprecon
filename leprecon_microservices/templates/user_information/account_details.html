@@ -1,0 +1,16 @@
+<div id="account-details">
+  <h3>Account information</h3>
+  <p>id: {{ sub }}</p>
+  <div class="flex space-x-2">
+    <p>balance: {{ balance }} {{ currency }}</p>
+    <button
+      class="bg-orange-100 border-2 border-black"
+      hx-get="/balance"
+      hx-swap="outerHTML"
+      hx-target="#page-body"
+      hx-push-url="/payment/balance"
+    >
+      Add balance
+    </button>
+  </div>
+</div>

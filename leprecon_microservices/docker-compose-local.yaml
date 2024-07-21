@@ -1,0 +1,23 @@
+name: leprecon-services
+services:
+  account-db:
+    image: postgres:alpine3.19
+    container_name: account-db
+    network_mode: host
+    env_file: .env
+  game_catalog-db:
+    image: mongodb/mongodb-community-server:7.0-ubi8
+    container_name: game-catalog-db
+    network_mode: host
+    env_file: .env
+  session-db:
+    image: valkey/valkey:7.2.5-alpine3.19
+    container_name: session-db
+    network_mode: host
+  rabbit-mq:
+    image: rabbitmq:3.13.3
+    container_name: broker
+    env_file: .env
+    network_mode: host
+    command: >
+      sh -c "rabbitmq-plugins enable rabbitmq_stream && rabbitmq-server"

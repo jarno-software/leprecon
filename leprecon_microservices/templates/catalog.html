@@ -1,0 +1,7 @@
+<h2>Games</h2>
+{% for catalog in catalogs %}
+  <div>
+    <h3>{{ catalog.name }}</h3>
+    <p>{{ catalog.description }}</p>
+  </div>
+{% endfor %}

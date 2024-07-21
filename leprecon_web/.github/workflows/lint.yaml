@@ -1,0 +1,13 @@
+name: lint
+on:
+  workflow_call:
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - name: Install prettier
+        run: npm install prettier --save-dev
+      - name: Check if format is needed
+        run: npx prettier . --check

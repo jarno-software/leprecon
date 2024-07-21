@@ -1,0 +1,35 @@
+<form
+  id="user-information"
+  hx-put="/user/information"
+  hx-swap="none"
+  class="flex space-x-10 bg-white p-3 mt-10 mb-10"
+>
+  <div class="space-y-2">
+    {{ account_details.render().unwrap() }}
+    <div id="personal-info">
+      <h3>Personal details</h3>
+      <div id="account-input" class="flex space-x-24">
+        {{ name_input.render().unwrap() }} 
+        {{ address_input.render().unwrap() }}
+      </div>
+    </div>
+    <input
+      id="account-submit"
+      class="bg-orange-100 border-2 border-black cursor-pointer"
+      type="submit"
+      value="Update"
+    />
+  </div>
+  <div>
+    <h3 class="">Delete account</h3>
+    <p>Deleting your account is permanent, and unrecoverable.</p>
+    <button
+      id="delete-account"
+      class="bg-red-500"
+      hx-delete="/user"
+      hx-confirm="Are you sure you wish to delete your account?"
+    >
+      Delete
+    </button>
+  </div>
+</form>
